@@ -1,8 +1,8 @@
 const express = require("express");
-const { mongoose } = require("mongoose");
+const mongoose = require("mongoose"); // Fixed the import
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
-const dotenv = require("dotenv").config();
+const dotenv = require("dotenv").config(); // Only need this once
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
@@ -18,19 +18,22 @@ app.use(
 );
 app.use(express.json()); // Parse JSON payloads
 
+// Import routes
 app.use("/api/friends", require("./routes/friendRoutes"));
+app.use("/", require("./routes/authRoutes"));
 
+// Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => {
     console.log("Database connected");
   })
   .catch((err) => {
-    console.log("database not connected", err);
+    console.log("Database not connected", err);
   });
 
-app.use("/", require("./routes/authRoutes"));
+// Start server
 const PORT = 3000;
 app.listen(PORT, () => {
-  console.log("Server is running on port ${PORT}");
+  console.log(`Server is running on port ${PORT}`); // Fixed the template literal
 });
