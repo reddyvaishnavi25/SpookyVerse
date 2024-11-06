@@ -2,8 +2,9 @@ const User = require("../models/user");
 const jwt = require('jsonwebtoken');
 
 const getUserIdFromToken = (req) => {
+  console.log("in token extractor");
+  console.log(req.headers.authorization);
   const token = req.headers.authorization.split(" ")[1]; // Assuming Bearer token
-  console.log(token);
   if (!token) return null;
 
   try {
@@ -175,8 +176,68 @@ const rejectFriendRequest = async (req, res) => {
     }
   };
   
+
+
+    const getFriendsList = async (req, res) => {
+      // Extract userId from token
+      const userId = getUserIdFromToken(req);
+    
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized: No token provided" });
+      }
+    
+      try {
+        // Find the user by ID and get only the listOfFriends field
+        const user = await User.findById(userId).select("listOfFriends");
+    
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+    
+        // Send response with the list of friends
+        res.status(200).json({
+          message: "Friends list fetched successfully",
+          friendsList: user.listOfFriends,
+        });
+      } catch (error) {
+        console.error("Error fetching friends list:", error);
+        res.status(500).json({ message: "Server error", error });
+      }
+    
+  };
+
+  const getPendingRequests = async (req, res) => {
+   
+    // Extract userId from token
+    const userId = getUserIdFromToken(req);
+  
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized: No token provided" });
+    }
+  
+    try {
+      // Find the user by ID and get only the pending requests field
+      const user = await User.findById(userId).select("pendingRequests");
+  
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      // Send response with the pending friend requests
+      res.status(200).json({
+        message: "Pending friend requests fetched successfully",
+        pendingRequests: user.pendingRequests,
+      });
+    } catch (error) {
+      console.error("Error fetching pending friend requests:", error);
+      res.status(500).json({ message: "Server error", error });
+    }
+  };
+  
 module.exports = {
   sendFriendRequest,
   acceptFriendRequest,
   rejectFriendRequest,
+  getFriendsList,
+  getPendingRequests
 };

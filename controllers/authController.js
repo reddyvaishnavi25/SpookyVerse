@@ -35,13 +35,11 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-
     // Check if the user exists
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" }); // User not found
+      return res.status(401).json({ message: "Invalid CREDS" }); // User not found
     }
-
     // Check if the password matches
     if (user) {
       const isMatch = await bcrypt.compare(password, user.password);
@@ -64,11 +62,10 @@ const loginUser = async (req, res) => {
       })
       .json({
         message: "Login successful",
-        user: { email: user.email, name: user.firstName },
+        user: { email: user.email, firstName: user.firstName, lastName:user.lastName },
+        token
       });
-    // If login is successful, return the user (omit password for security)
-    const { password: pwd, ...userData } = user._doc; // Exclude password from response
-    return res.status(200).json(userData); // Return user data
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });
